@@ -12,6 +12,7 @@ const getAllStudentsFromDB = async()=>{
 }
 const getSingleStudentFromDB = async(id: string)=>{
     const result = await Student.findOne({id});
+    console.log(result);
     return result;
 }
 
