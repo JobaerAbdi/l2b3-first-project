@@ -1,10 +1,10 @@
-import { Schema, model, connect } from 'mongoose';
 
 export type TUserName = {
     firstName: string;
     middleName?: string;
     lastName: string;
 };
+
 export type TGuardian = {
     fatherName: string;
     fatherOccupation: string;
@@ -24,6 +24,7 @@ export type TLocalGuardian = {
 
 export type TStudent = {
     id: string;
+    password: string;
     name : TUserName;
     gender: "male" | "female" | "other";
     dateOfBirth?: string;

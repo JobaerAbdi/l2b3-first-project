@@ -2,8 +2,11 @@ import { TStudent } from "./student.interface";
 import { Student } from "./student.model";
 
 const createStudentIntoDB =async(payload:TStudent )=>{
-   const data = await Student.create(payload)
-   return data
+// const data = await Student.create(payload) // build in static methods
+// return data 
+   const student = new Student(payload)
+   const result = await student.save()
+   return result
 }
 
 const getAllStudentsFromDB = async()=>{
