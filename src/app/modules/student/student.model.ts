@@ -76,7 +76,6 @@ const studentSchema = new Schema<TStudent>({
   password: {
     type: String,
     required: true,
-    unique: true
   },
   name: {
     type: userNameSchema,
@@ -150,6 +149,11 @@ studentSchema.pre('save', async function(next){
     user.password, 
     Number(config.bcrypt_salt_rounds)
   )
+  next()
+})
+
+studentSchema.post("save", function(doc, next){
+  doc.password = "";
   next()
 })
 
