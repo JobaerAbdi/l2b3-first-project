@@ -39,18 +39,24 @@ export type TStudent = {
     localGuardian: TLocalGuardian;
     profileImage?: string;
     isActive: "active" | "inActive";
-    // isDeleted: boolean
+    isDeleted: boolean
 };
 
-// =================================================
-// Custom instance methods
+// ===================================================================
+// Custom instance methods //
+// export type StudentCustomInstanceMethods = {
+//     isUserExists(id:string):Promise<TStudent | null>
+// };
 
-export type StudentCustomInstanceMethods = {
-    isUserExists(id:string):Promise<TStudent | null>
+// export type StudentCustomInstanceModel = Model<
+// TStudent, 
+// Record<string,never>, 
+// StudentCustomInstanceMethods
+// >;
+// ===================================================================
+
+// Custom static methods //
+
+export interface StudentCustomStaticModel extends Model<TStudent>{
+  isUserExists(id:string): Promise<TStudent | null>
 };
-
-export type StudentCustomInstanceModel = Model<
-TStudent, 
-Record<string,never>, 
-StudentCustomInstanceMethods
->;
