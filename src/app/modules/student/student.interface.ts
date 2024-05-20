@@ -1,3 +1,4 @@
+import { Model } from "mongoose";
 
 export type TUserName = {
     firstName: string;
@@ -37,5 +38,19 @@ export type TStudent = {
     guardian: TGuardian;
     localGuardian: TLocalGuardian;
     profileImage?: string;
-    isActive: "active" | "inActive"
-}
+    isActive: "active" | "inActive";
+    // isDeleted: boolean
+};
+
+// =================================================
+// Custom instance methods
+
+export type StudentCustomInstanceMethods = {
+    isUserExists(id:string):Promise<TStudent | null>
+};
+
+export type StudentCustomInstanceModel = Model<
+TStudent, 
+Record<string,never>, 
+StudentCustomInstanceMethods
+>;

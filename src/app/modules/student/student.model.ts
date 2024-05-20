@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from "bcrypt";
-import { TGuardian, TLocalGuardian, TStudent, TUserName } from './student.interface';
+import { StudentCustomInstanceMethods, StudentCustomInstanceModel, TGuardian, TLocalGuardian, TStudent, TUserName } from './student.interface';
 import config from '../../config';
 
 const userNameSchema = new Schema<TUserName>({
@@ -67,7 +67,7 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 
 // =========================================================
 
-const studentSchema = new Schema<TStudent>({
+const studentSchema = new Schema<TStudent, StudentCustomInstanceModel, StudentCustomInstanceMethods>({
   id: {
     type: String,
     required: [true, "Id must be required"],
@@ -137,6 +137,10 @@ const studentSchema = new Schema<TStudent>({
     },
     default: 'active'
   },
+  // isDeleted: {
+  //   type: Boolean,
+  //   default: false
+  // }
 },
 {
   timestamps: true
@@ -157,5 +161,10 @@ studentSchema.post("save", function(doc, next){
   next()
 })
 
+studentSchema.methods.isUserExists = async function(id:string){
+  const existingUser = await Student.findOne({ id })
+  return existingUser
+}
 
-export const Student = model<TStudent>("Student", studentSchema);
+  
+export const Student = model<TStudent,StudentCustomInstanceModel>("Student", studentSchema);
