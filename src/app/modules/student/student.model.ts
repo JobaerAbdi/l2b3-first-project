@@ -1,231 +1,176 @@
-import { Schema, model } from 'mongoose'
-import bcrypt from 'bcrypt'
+import { Schema, model } from 'mongoose';
 import {
-  StudentCustomInstanceMethods,
-  StudentCustomInstanceModel,
-  StudentCustomStaticModel,
+  StudentModel,
   TGuardian,
   TLocalGuardian,
   TStudent,
   TUserName,
-} from './student.interface'
-import config from '../../config'
+} from './student.interface';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
-    required: [true, 'First name must be required'],
+    required: [true, 'First Name is required'],
     trim: true,
-    maxlength: [20, 'First name can not be more than 20 characters'],
+    maxlength: [20, 'Name can not be more than 20 characters'],
   },
   middleName: {
     type: String,
+    trim: true,
   },
   lastName: {
     type: String,
-    required: [true, 'Last name must be required'],
+    trim: true,
+    required: [true, 'Last Name is required'],
+    maxlength: [20, 'Name can not be more than 20 characters'],
   },
-})
+});
 
 const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
-    required: [true, 'Father name must be required'],
+    trim: true,
+    required: [true, 'Father Name is required'],
   },
   fatherOccupation: {
     type: String,
-    required: [true, 'Father occupation must be required'],
+    trim: true,
+    required: [true, 'Father occupation is required'],
   },
   fatherContactNo: {
     type: String,
-    required: [true, 'Father contact no must be required'],
+    required: [true, 'Father Contact No is required'],
   },
   motherName: {
     type: String,
-    required: [true, 'Mother name must be required'],
+    required: [true, 'Mother Name is required'],
   },
   motherOccupation: {
     type: String,
-    required: [true, 'Mother occupation must be required'],
+    required: [true, 'Mother occupation is required'],
   },
   motherContactNo: {
     type: String,
-    required: [true, 'Mother contact no must be required'],
+    required: [true, 'Mother Contact No is required'],
   },
-})
+});
 
-const localGuardianSchema = new Schema<TLocalGuardian>({
+const localGuradianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
-    required: [true, 'Name must be required'],
+    required: [true, 'Name is required'],
   },
   occupation: {
     type: String,
-    required: [true, 'Occupation must be required'],
+    required: [true, 'Occupation is required'],
   },
   contactNo: {
     type: String,
-    required: [true, 'Contact no must be required'],
+    required: [true, 'Contact number is required'],
   },
   address: {
     type: String,
-    required: [true, 'Address must be required'],
+    required: [true, 'Address is required'],
   },
-})
+});
 
-// =========================================================
-
-// const studentSchema = new Schema<TStudent, StudentCustomInstanceModel, StudentCustomInstanceMethods>({
-const studentSchema = new Schema<TStudent, StudentCustomStaticModel>(
+const studentSchema = new Schema<TStudent, StudentModel>(
   {
     id: {
       type: String,
-      required: [true, 'Id must be required'],
+      required: [true, 'ID is required'],
       unique: true,
     },
-    password: {
-      type: String,
-      required: true,
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User id is required'],
+      unique: true,
+      ref: 'User',
     },
     name: {
       type: userNameSchema,
-      required: [true, 'Name must be required'],
+      required: [true, 'Name is required'],
     },
     gender: {
       type: String,
       enum: {
         values: ['male', 'female', 'other'],
-        messages: '{VALUE} is not valid',
+        message: '{VALUE} is not a valid gender',
       },
-      required: [true, 'Gender must be required'],
+      required: [true, 'Gender is required'],
     },
-    dateOfBirth: {
-      type: String,
-    },
+    dateOfBirth: { type: String },
     email: {
       type: String,
-      required: true,
+      required: [true, 'Email is required'],
+      unique: true,
     },
-    contactNo: {
-      type: String,
-      required: true,
-    },
+    contactNo: { type: String, required: [true, 'Contact number is required'] },
     emergencyContactNo: {
       type: String,
-      required: true,
+      required: [true, 'Emergency contact number is required'],
     },
     bloodGroup: {
       type: String,
       enum: {
         values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-        messages: '{VALUE} is not valid',
+        message: '{VALUE} is not a valid blood group',
       },
-      required: [true, 'Blood group must be required'],
     },
     presentAddress: {
       type: String,
-      required: true,
+      required: [true, 'Present address is required'],
     },
     permanentAddress: {
       type: String,
-      required: true,
+      required: [true, 'Permanent address is required'],
     },
     guardian: {
       type: guardianSchema,
-      required: [true, 'Guardian must be required'],
+      required: [true, 'Guardian information is required'],
     },
     localGuardian: {
-      type: localGuardianSchema,
-      required: [true, 'Local guardian must be required'],
+      type: localGuradianSchema,
+      required: [true, 'Local guardian information is required'],
     },
-    profileImage: { type: String },
-    isActive: {
-      type: String,
-      enum: {
-        values: ['active', 'blocked'],
-        messages: '{VALUE} is not valid',
-      },
-      default: 'active',
-    },
+    profileImg: { type: String },
     isDeleted: {
       type: Boolean,
       default: false,
     },
   },
   {
-    timestamps: true,
     toJSON: {
-      virtuals: true
-    }
+      virtuals: true,
+    },
   },
-)
+);
 
-// ===================================================================
-
-// pre middleware hook //
-studentSchema.pre('save', async function (next) {
-  const user = this
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds),
-  )
-  next()
-})
-
-// ===================================================================
-
-// post middleware hook //
-studentSchema.post('save', function (doc, next) {
-  doc.password = ''
-  next()
-})
-
-// ===================================================================
-
-// query middleware hook //
-// studentSchema.pre('find', function (next) {
-//   this.find({ isDeleted: { $ne: true } }) // Mane je document gulor moddhe isDeleted filed nai se golo show korbe
-//   next()
-// })
-
-// studentSchema.pre('findOne', function (next) {
-//   this.find({ isDeleted: { $ne: true } }) // Mane je document gulor moddhe isDeleted filed nai seta show korbe
-//   next()
-// })
-
-// ===================================================================
-
-
-// virtual middleware hook //
-studentSchema.virtual("fullName").get(function(){
-  return (
-    `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`
-  )
+// virtual
+studentSchema.virtual('fullName').get(function () {
+  return this.name.firstName + this.name.middleName + this.name.lastName;
 });
 
-studentSchema.virtual("designation").get(function(){
-  return "student"
-})
+// Query Middleware
+studentSchema.pre('find', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
 
-// ===================================================================
+studentSchema.pre('findOne', function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
 
-// custom instance methods //
-// studentSchema.methods.isUserExists = async function(id:string){
-//   const existingUser = await Student.findOne({ id })
-//   return existingUser
-// };
+studentSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
 
-// ===================================================================
+//creating a custom static method
+studentSchema.statics.isUserExists = async function (id: string) {
+  const existingUser = await Student.findOne({ id });
+  return existingUser;
+};
 
-// custom static methods
-// studentSchema.statics.isUserExists = async function(id: string){
-//   const existingUser = await Student.findOne({id})
-//   return existingUser
-// };
-
-// ===================================================================
-
-export const Student = model<TStudent>('Student', studentSchema)
-
-// export const Student = model<TStudent,StudentCustomInstanceModel>("Student", studentSchema);
-// export const Student = model<TStudent,StudentCustomStaticModel>("Student", studentSchema);
+export const Student = model<TStudent, StudentModel>('Student', studentSchema);
