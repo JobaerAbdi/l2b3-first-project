@@ -34,8 +34,18 @@ const getSingleAcademicSemesterFromDB = async(id: string)=>{
   return result
 }
 
+const updateSingleAcademicSemesterIntoDB = async(id: string, payload: TAcademicSemester)=>{
+  const result = await AcademicSemester.findByIdAndUpdate(
+    id,
+    payload,
+    {new: true, runValidators:true}
+  )
+  return result
+}
+
 export const AcademicSemesterServices = {
   createAcademicSemesterIntoDB,
   getAllAcademicSemesterFromDB,
-  getSingleAcademicSemesterFromDB
+  getSingleAcademicSemesterFromDB,
+  updateSingleAcademicSemesterIntoDB
 }
