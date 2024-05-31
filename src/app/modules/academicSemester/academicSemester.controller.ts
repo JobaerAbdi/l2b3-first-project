@@ -15,6 +15,35 @@ const createAcademicSemester: RequestHandler = async (req, res, next) => {
   }
 }
 
+const getAllAcademicSemester: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await AcademicSemesterServices.getAllAcademicSemesterFromDB()
+    res.status(200).json({
+        success: true,
+        message: "All academic semesters are retrieved successfully!",
+        data: result
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+const getSingleAcademicSemester: RequestHandler = async (req, res, next) => {
+  try {
+    const {semesterId} = req.params
+    const result = await AcademicSemesterServices.getSingleAcademicSemesterFromDB(semesterId)
+    res.status(200).json({
+        success: true,
+        message: "Academic semester is retrieved successfully!",
+        data: result
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
 export const AcademicSemesterControllers = {
-    createAcademicSemester
+    createAcademicSemester,
+    getAllAcademicSemester,
+    getSingleAcademicSemester
 }
