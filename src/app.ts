@@ -1,10 +1,10 @@
-import express, { Application, NextFunction, Request, Response } from 'express'
+import express, { Application, Request, Response } from 'express'
 import cors from 'cors'
 import { StudentRoutes } from './app/modules/student/student.route'
 import { UserRoutes } from './app/modules/user/user.route'
+import { AcademicSemesterRoutes } from './app/modules/academicSemester/academicSemester.route'
 import globalErrorHandler from './app/middlewares/globalErrorHandler'
 import notFound from './app/middlewares/notFound'
-import { AcademicSemesterRoutes } from './app/modules/academicSemester/academicSemester.route'
 const app: Application = express()
 
 // parsers
@@ -15,11 +15,14 @@ app.use(cors())
 
 app.use('/api/v1/students', StudentRoutes)
 app.use('/api/v1/users', UserRoutes)
-app.use('/api/v1/academicSemester',AcademicSemesterRoutes)
+app.use('/api/v1/academicSemester', AcademicSemesterRoutes)
 
 app.get('/', (req: Request, res: Response) => {
-  const a = 10
-  res.send(a)
+  res.status(200).json({
+    success: true,
+    message: "Welcome to L2B3 first project",
+    data: ''
+  })
 })
 
 app.use(notFound)
