@@ -1,7 +1,11 @@
 import { Schema, model } from 'mongoose'
-import TAcademicSemester, { TCodes, TMonths, TNames } from './academicSemester.interface'
+import TAcademicSemester, {
+  TCodes,
+  TMonths,
+  TNames,
+} from './academicSemester.interface'
 
-const months:TMonths[] = [
+const months: TMonths[] = [
   'January',
   'February',
   'March',
@@ -14,11 +18,11 @@ const months:TMonths[] = [
   'October',
   'November',
   'December',
-];
+]
 
-const semesterName: TNames[] = ['Autumn', 'Summer', 'Fall'];
+const semesterName: TNames[] = ['Autumn', 'Summer', 'Fall']
 
-const semesterCode: TCodes[] = ['01', '02', '03'];
+const semesterCode: TCodes[] = ['01', '02', '03']
 
 const academicSemesterSchema = new Schema<TAcademicSemester>(
   {
@@ -28,8 +32,8 @@ const academicSemesterSchema = new Schema<TAcademicSemester>(
       required: true,
     },
     year: {
-     type: String,
-     required: true
+      type: String,
+      required: true,
     },
     code: {
       type: String,
@@ -51,6 +55,24 @@ const academicSemesterSchema = new Schema<TAcademicSemester>(
     timestamps: true,
   },
 )
+
+// এখানে client থেকে যে name এবং year পাঠানো হচ্ছে সেটা আগে থেকে ডাটাবেজে এ exists করে কিনা!
+// যদি exists করে তাহলে throw new Error করা হচ্ছে, 
+// আর যদি exists না করে তাহলে next এর মাধ্যমে পরবর্তী  middleware পাঠানো হচ্ছে।
+
+// এই লজিকটা সবার জন্য কমন তাই মডেলে স্থাপন করা হয়েছে।
+
+academicSemesterSchema.pre('save', async function (next) {
+  const isUserExists = await AcademicSemester.findOne({  
+    name: this.name,
+    year: this.year,
+  })
+  // console.log(isUserExists);
+  if (isUserExists) {
+    throw new Error('Academic semester is already exists!')
+  }
+  next()
+})
 
 export const AcademicSemester = model<TAcademicSemester>(
   'AcademicSemester',

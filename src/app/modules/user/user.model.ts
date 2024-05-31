@@ -34,7 +34,7 @@ const userSchema = new Schema<TUser>(
     timestamps: true,
   },
 );
-
+  // There are document middleware => .pre('save', / .post('save',
 userSchema.pre('save', async function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this; // doc
