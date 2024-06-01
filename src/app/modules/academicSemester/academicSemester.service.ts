@@ -34,7 +34,7 @@ const getSingleAcademicSemesterFromDB = async (id: string) => {
   return result
 }
 
-const updateSingleAcademicSemesterIntoDB = async (id: string,payload: Partial<TAcademicSemester>) => {
+const updateSingleAcademicSemesterIntoDB = async (id: string, payload: Partial<TAcademicSemester>) => {
   if (
     payload.name &&
     payload.code &&

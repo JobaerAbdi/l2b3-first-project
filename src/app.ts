@@ -17,7 +17,7 @@ app.use(cors())
 app.use('/api/v1/students', StudentRoutes)
 app.use('/api/v1/users', UserRoutes)
 app.use('/api/v1/academicSemester', AcademicSemesterRoutes)
-app.use('/api/vi/academicFaculty', AcademicFacultyRoutes)
+app.use('/api/v1/academicFaculty', AcademicFacultyRoutes)
 
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
