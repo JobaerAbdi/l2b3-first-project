@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { string, z } from 'zod'
 
 const semesterName = ['Autumn', 'Summer', 'Fall']
 const semesterCode = ['01', '02', '03']
@@ -45,3 +45,6 @@ export const academicSemesterSchema = {
   createAcademicSemesterSchema,
   updateAcademicSemesterSchema
 }
+
+
+
