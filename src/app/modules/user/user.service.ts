@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import config from '../../config'
 import { AcademicSemester } from '../academicSemester/academicSemester.model'
 import { TStudent } from '../student/student.interface'
@@ -8,21 +9,39 @@ import generateStudentId from './user.utils'
 
 const createStudentIntoDB = async (payload: TStudent, password: string) => {
   const userData: Partial<TUser> = {}
-  userData.password = password || config.default_password as string
-  userData.role = "student"
+  userData.password = password || (config.default_password as string)
+  userData.role = 'student'
 
-  const admissionSemester = await AcademicSemester.findById(payload.admissionSemester)
-  userData.id = await generateStudentId(admissionSemester)
-  console.log("userData.id=>",userData.id)
+  const admissionSemester = await AcademicSemester.findById(
+    payload.admissionSemester,
+  )
 
-  const newUser = await User.create(userData)
-  // console.log("newUser",newUser.id);
-  if(Object.keys(newUser).length){
-    payload.id = newUser.id
-    console.log("payload.id=>", payload.id)
-    payload.user = newUser._id  // Reference id
-    const newStudent = await Student.create(payload)
-    return newStudent
+ //------------------------------------------------------------------------
+ 
+  const session = await mongoose.startSession()
+  try {
+    session.startTransaction()
+    userData.id = await generateStudentId(admissionSemester)
+
+    const newUser = await User.create([userData], {session})
+    if (!newUser.length) {
+      throw new Error('Failed to create user');
+    }
+      payload.id = newUser[0].id
+      payload.user = newUser[0]._id // Reference id
+
+      const newStudent = await Student.create([payload], {session})
+      if (!newStudent.length) {
+        throw new Error('Failed to create student');
+      }
+      await session.commitTransaction()
+      await session.endSession()
+      return newStudent
+    
+  } catch (err) {
+     await session.abortTransaction()
+     await session.endSession()
+     throw new Error('Failed to create student');
   }
 }
 
@@ -35,4 +54,3 @@ export const UserServices = {
   createStudentIntoDB,
   // createAdminIntoDB
 }
-
