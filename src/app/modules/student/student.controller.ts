@@ -60,6 +60,25 @@ const getSingleStudent = async (
   }
 }
 
+const updateStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { studentId } = req.params
+    const { studentData } = req.body
+    const result = await StudentServices.updateStudentIntoDB(studentId, studentData)
+    res.status(200).json({
+      success: true,
+      message: 'Student is updated successfully',
+      data: result,
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
 const deleteStudent = async (req: Request, res: Response, next:NextFunction) => {
   try {
     const { studentId } = req.params
@@ -78,5 +97,6 @@ export const StudentControllers = {
   // createStudentIntoDB,
   getAllStudents,
   getSingleStudent,
+  updateStudent,
   deleteStudent,
 }
