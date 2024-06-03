@@ -73,7 +73,7 @@ const deleteStudentIntoDB = async (id: string) => {
   const session = await mongoose.startSession()
   try {
     session.startTransaction()
-    const deletedStudent = await Student.findOneAndUpdate(   // => findOneAndUpdate use because this is custom generate id.
+    const deletedStudent = await Student.findOneAndUpdate(   // => findOneAndUpdate use because this is custom made generate id.
       { id },
       { isDeleted: true },
       {new: true, session}
@@ -81,7 +81,7 @@ const deleteStudentIntoDB = async (id: string) => {
     if(!deletedStudent){
       throw new Error("Failed to deleted student!")
     }
-    const deletedUser = await User.findOneAndUpdate(  // => findOneAndUpdate use because this is custom generate id.
+    const deletedUser = await User.findOneAndUpdate(  // => findOneAndUpdate use because this is custom made generate id.
       {id},
       {isDeleted: true},
       {new: true, session}
