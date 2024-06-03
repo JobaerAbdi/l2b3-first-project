@@ -6,6 +6,7 @@ import {
   TStudent,
   TUserName,
 } from './student.interface';
+import AppError from '../../errors/AppError';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -179,5 +180,19 @@ studentSchema.statics.isUserExists = async function (id: string) {
   const existingUser = await Student.findOne({ id });
   return existingUser;
 };
+
+
+// Query middleware for check this wrong id is exists in db. 
+// And findOneAndUpdate use because service layer use it. 
+studentSchema.pre("findOneAndUpdate", async function(next){
+  const query = this.getQuery()
+  // console.log(query);
+  const isIdExists = await Student.findOne(query)
+  // console.log(isIdExists);
+  if(!isIdExists){
+    throw new Error("This id does not exists!")
+  }
+  next()
+})
 
 export const Student = model<TStudent, StudentModel>('Student', studentSchema);

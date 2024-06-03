@@ -17,30 +17,30 @@ const createStudentIntoDB = async (payload: TStudent, password: string) => {
   )
 
  //------------------------------------------------------------------------
- 
-  const session = await mongoose.startSession()
+
+  const session = await mongoose.startSession() //=> start session
   try {
-    session.startTransaction()
+    session.startTransaction() // start transaction
     userData.id = await generateStudentId(admissionSemester)
 
-    const newUser = await User.create([userData], {session})
+    const newUser = await User.create([userData], {session}) //=> session set in User model
     if (!newUser.length) {
       throw new Error('Failed to create user');
     }
       payload.id = newUser[0].id
       payload.user = newUser[0]._id // Reference id
 
-      const newStudent = await Student.create([payload], {session})
+      const newStudent = await Student.create([payload], {session}) //=> session set in Student model
       if (!newStudent.length) {
         throw new Error('Failed to create student');
       }
-      await session.commitTransaction()
-      await session.endSession()
+      await session.commitTransaction() //=> session.commitTransaction
+      await session.endSession() //=> session.endSession
       return newStudent
     
   } catch (err) {
-     await session.abortTransaction()
-     await session.endSession()
+     await session.abortTransaction() //=> session.abortTransaction
+     await session.endSession() //=> session.endSession
      throw new Error('Failed to create student');
   }
 }

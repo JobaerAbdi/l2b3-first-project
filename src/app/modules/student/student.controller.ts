@@ -66,7 +66,7 @@ const deleteStudent = async (req: Request, res: Response, next:NextFunction) => 
     const result = await StudentServices.deleteStudentIntoDB(studentId)
     res.status(200).json({
       success: true,
-      message: 'Student is deleted successfully',
+      message: 'Student and user is deleted successfully',
       data: result,
     })
   } catch (err) {
