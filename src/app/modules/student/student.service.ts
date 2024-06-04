@@ -40,11 +40,31 @@ import { User } from '../user/user.model'
 
 // ========================================================================
 
-const getAllStudentsFromDB = async () => {
-  const result = await Student.find()
+const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
+  console.log("Service query=>", query);
+  const queryObj = {...query}
+  console.log("Upper copy queryObj=>", queryObj);
+  const studentSearchableFields = ["email", "name.firstName", "presentAddress"]
+  let searchTerm = '';
+  if(query?.searchTerm){
+    searchTerm = query?.searchTerm as string
+  }
+  const searchQuery = Student.find({
+    $or: studentSearchableFields.map((field)=>({
+      [field]: {$regex: searchTerm, $options: "i"}
+    }))
+  })
+
+  // Filtering
+  const excludeFields = ["searchTerm"]
+  excludeFields.forEach(element=> delete queryObj[element])
+  console.log("After delete query in queryObj=>", queryObj);
+  
+
+  const result = await searchQuery.find(queryObj)  // chining searchQuery
     .populate('admissionSemester')
     .populate({
-      path: 'academicDepartment',
+      path: 'academicDepartment', 
       populate: {
         path: 'academicFaculty',
       },
@@ -130,10 +150,10 @@ const deleteStudentIntoDB = async (id: string) => {
     await session.commitTransaction()
     await session.endSession()
     return deletedStudent
-  } catch (err) {
+  } catch (err: any) {
     await session.abortTransaction()
     await session.endSession()
-    throw new Error("Failed to deleted student!")
+    throw new Error(err)
   }
 }
 

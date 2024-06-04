@@ -31,10 +31,12 @@ const getAllStudents = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await StudentServices.getAllStudentsFromDB()
+    const query = req.query
+    console.log("Controller query=>", query);
+    const result = await StudentServices.getAllStudentsFromDB(query)
     res.status(200).json({
       success: true,
-      message: 'Students are retrieved successfully',
+      message: 'All students are retrieved successfully',
       data: result,
     })
   } catch (err) {
