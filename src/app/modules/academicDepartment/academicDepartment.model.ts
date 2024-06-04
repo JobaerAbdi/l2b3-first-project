@@ -21,7 +21,7 @@ academicDepartmentSchema.pre("save", async function(next){
   const isDepartmentExists = await AcademicDepartment.findOne({
     name: this?.name
   })
-//   console.log(isDepartmentExists);
+   console.log(isDepartmentExists);
   if(isDepartmentExists){
     throw new AppError(404,"This department is already exists!")
   }

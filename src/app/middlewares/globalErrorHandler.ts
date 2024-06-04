@@ -5,6 +5,7 @@ import handleZodError from "../errors/handleZodError";
 import { TErrorSources } from "../interface/error";
 import handleValidationError from "../errors/handleValidationError";
 import handleCastError from "../errors/handleCastError";
+import handleDuplicateError from "../errors/handleDuplicateError";
 
 // const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
 //   const statusCode = err.statusCode || 500;
@@ -43,6 +44,12 @@ const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFun
   }
   else if(err?.name === "CastError"){   // CastError provide mongoose. Its show for only invalid id.
     const simplifiedError = handleCastError(err)
+    statusCode = simplifiedError?.statusCode;
+    message = simplifiedError?.message;
+    errorSources = simplifiedError?.errorSources
+  }
+  else if(err?.code === 11000){   // CastError provide mongoose. Its show for only invalid id.
+    const simplifiedError = handleDuplicateError(err)
     statusCode = simplifiedError?.statusCode;
     message = simplifiedError?.message;
     errorSources = simplifiedError?.errorSources
