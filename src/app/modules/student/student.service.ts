@@ -41,9 +41,9 @@ import { User } from '../user/user.model'
 // ========================================================================
 
 const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
-  console.log("Service query=>", query);
+  console.log("Base query=>", query);
   const queryObj = {...query}
-  console.log("Upper copy queryObj=>", queryObj);
+  console.log("Copy queryObj=>", queryObj);
   const studentSearchableFields = ["email", "name.firstName", "presentAddress"]
   let searchTerm = '';
   if(query?.searchTerm){
@@ -56,12 +56,12 @@ const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
   })
 
   // Filtering
-  const excludeFields = ["searchTerm"]
+  const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"]
   excludeFields.forEach(element=> delete queryObj[element])
-  console.log("After delete query in queryObj=>", queryObj);
+  console.log("After delete copy query in queryObj=>", queryObj);
   
 
-  const result = await searchQuery.find(queryObj)  // chining searchQuery
+  const filterQuery= searchQuery.find(queryObj)  // chining searchQuery
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment', 
@@ -69,7 +69,37 @@ const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
         path: 'academicFaculty',
       },
     })
-  return result
+
+    let sort = "-createdAt"
+    if(query?.sort){
+      sort = String(query.sort) 
+    }
+
+    const sortQuery = filterQuery.sort(sort)
+
+    let page = 1
+    let limit = 1
+    let skip = 0
+
+    if(query?.limit){
+      limit = Number(query.limit)
+    }
+
+    if(query?.page){
+      page = Number(query.page)
+      skip =  (page - 1) * limit     
+    }
+    const paginateQuery = sortQuery.skip(skip)
+    const limitQuery = paginateQuery.limit(limit)
+
+    let fields = '-__v'
+    if(query?.fields){
+      fields = (query.fields as string).split(',').join(' ')
+      console.log("From fields after split and join=>", fields);
+    }
+
+    const fieldQuery = await limitQuery.select(fields)
+    return fieldQuery
 }
 
 // ========================================================================
