@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 import { TStudent } from './student.interface'
 import { Student } from './student.model'
 import { User } from '../user/user.model'
+import QueryBuilder from '../../buldier/QueryBuilder'
+import { studentSearchableFields } from './student.constant'
 
 // const createStudentIntoDB = async (payload: TStudent) => {
 
@@ -39,7 +41,7 @@ import { User } from '../user/user.model'
 // };
 
 // ========================================================================
-
+/*
 const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
   console.log("Base query=>", query);
   const queryObj = {...query}
@@ -58,7 +60,7 @@ const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
   // Filtering
   const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"]
   excludeFields.forEach(element=> delete queryObj[element])
-  console.log("After delete copy query in queryObj=>", queryObj);
+  // console.log("After delete copy query in queryObj=>", queryObj);
   
 
   const filterQuery= searchQuery.find(queryObj)  // chining searchQuery
@@ -69,6 +71,7 @@ const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
         path: 'academicFaculty',
       },
     })
+
 
     let sort = "-createdAt"
     if(query?.sort){
@@ -95,12 +98,26 @@ const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
     let fields = '-__v'
     if(query?.fields){
       fields = (query.fields as string).split(',').join(' ')
-      console.log("From fields after split and join=>", fields);
+      // console.log("From fields after split and join=>", fields);
     }
 
     const fieldQuery = await limitQuery.select(fields)
     return fieldQuery
 }
+*/
+const getAllStudentsFromDB = async (query: Record<string,unknown>) => {
+  const studentQuery = new QueryBuilder(Student.find(), query)
+  .search(studentSearchableFields)
+  .filter()
+  .sort()
+  .paginate()
+  .fields()
+
+  const result = await studentQuery.modelQuery;
+  return result
+}
+
+
 
 // ========================================================================
 
