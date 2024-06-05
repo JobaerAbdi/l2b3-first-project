@@ -45,12 +45,6 @@ const createStudentIntoDB = async (payload: TStudent, password: string) => {
   }
 }
 
-// const createAdminIntoDB = async (payload: TUser) => {
-//   const result = await User.create(payload)
-//   return result
-// }
-
 export const UserServices = {
   createStudentIntoDB,
-  // createAdminIntoDB
 }
