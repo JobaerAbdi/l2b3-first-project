@@ -24,7 +24,7 @@ app.use('/api/v1/users', UserRoutes)
 app.use('/api/v1/academicSemester', AcademicSemesterRoutes)
 app.use('/api/v1/academicFaculty', AcademicFacultyRoutes)
 app.use('/api/v1/academicDepartment', AcademicDepartmentRoutes)
-app.use('/api/v1/faculties', FacultyRoutes)
+app.use('/api/v1/faculties', UserRoutes)
 
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
