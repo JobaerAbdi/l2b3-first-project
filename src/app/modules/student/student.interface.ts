@@ -90,8 +90,8 @@ export type TLocalGuardian = {
 };
 
 export type TStudent = {
-  id: string;
-  user: Types.ObjectId;
+  id: string; // From create backend.
+  user: Types.ObjectId; // From create backend.
   password: string;
   name: TUserName;
   gender: 'male' | 'female' | 'other';

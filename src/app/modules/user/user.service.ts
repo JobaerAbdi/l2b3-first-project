@@ -10,14 +10,17 @@ import { AcademicDepartment } from '../academicDepartment/academicDepartment.mod
 import { generateFacultyId, generateStudentId } from './user.utils'
 import { Faculty } from '../faculty/faculty.model'
 
+//=========================================================================================
+
 const createStudentIntoDB = async (payload: TStudent, password: string) => {
   const userData: Partial<TUser> = {}
   userData.password = password || (config.default_password as string)
   userData.role = 'student'
 
-  const admissionSemester = await AcademicSemester.findById(
-    payload.admissionSemester,
-  )
+  // findById diea search korle all information diea dea.
+  // payload.admissionSemester mane current academicSemester er _id.
+  const admissionSemester = await AcademicSemester.findById(payload.admissionSemester)
+  // console.log(admissionSemester);
 
   if(!admissionSemester){
     throw new Error("Admission semester not found!")
@@ -27,8 +30,10 @@ const createStudentIntoDB = async (payload: TStudent, password: string) => {
   try {
     session.startTransaction() // start transaction
     userData.id = await generateStudentId(admissionSemester)
-
+    // console.log("User data=>" ,userData); 
+    // User data=> { password: 'dgrtgr476353', role: 'student', id: '2030020011' }
     const newUser = await User.create([userData], {session}) //=> session set in User model
+    // User data=> [{ password: 'dgrtgr476353', role: 'student', id: '2030020011' }]
     if (!newUser.length) {
       throw new Error('Failed to create user');
     }
@@ -36,6 +41,8 @@ const createStudentIntoDB = async (payload: TStudent, password: string) => {
       payload.user = newUser[0]._id // Reference id
 
       const newStudent = await Student.create([payload], {session}) //=> session set in Student model
+      // console.log(newStudent);
+      
       if (!newStudent.length) {
         throw new Error('Failed to create student');
       }
@@ -56,8 +63,9 @@ const createFacultyIntoDB = async(payload: TFaculty, password: string)=>{
   const userData: Partial<TUser> = {}
   userData.password = password || (config.default_password as string)
   userData.role = "faculty"
-
+  // This is current academic department
   const academicDepartment = await AcademicDepartment.findById(payload.academicDepartment)
+  console.log(academicDepartment);
   if(!academicDepartment){
     throw new Error("Academic department not found!")
   }

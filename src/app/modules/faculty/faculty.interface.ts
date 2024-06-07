@@ -18,8 +18,8 @@ export type TUserName = {
 };
 
 export type TFaculty = {
-  id: string;
-  user: Types.ObjectId;
+  id: string; // From create backend.
+  user: Types.ObjectId; // From create backend.
   designation: string;
   name: TUserName;
   gender: TGender;
@@ -31,7 +31,7 @@ export type TFaculty = {
   presentAddress: string;
   permanentAddress: string;
   profileImg?: string;
-  academicDepartment: Types.ObjectId;
+  academicDepartment: Types.ObjectId;  // Kon department er faculty.
   isDeleted: boolean;
 };
 
