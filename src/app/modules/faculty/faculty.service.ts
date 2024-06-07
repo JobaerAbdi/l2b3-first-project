@@ -9,7 +9,13 @@ import { User } from '../user/user.model'
 
 const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
   const facultyQuery = new QueryBuilder(
-    Faculty.find().populate('academicDepartment'),
+    Faculty.find()
+    .populate({
+      path: "academicDepartment",
+      populate: {
+        path: "academicFaculty"
+      }
+    }),
     query,
   )
     .search(FacultySearchableFields)
@@ -25,14 +31,20 @@ const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
 // ---------------------------------------------------------------------------------------------------
 
 const getSingleFacultyFromDB = async(id: string)=>{
-  const result = await Faculty.findById(id).populate("academicDepartment")
+  const result = await Faculty.findById(id)
+  .populate({
+    path: "academicDepartment",
+    populate: {
+      path: "academicFaculty"
+    }
+  })
   return result
 }
 
 // ---------------------------------------------------------------------------------------------------
 
 const updateFacultyIntoDB = async(id: string, payload: Partial<TFaculty>)=>{
-  const {name, ...remainingFacultyData} = payload
+  const {name, ...remainingFacultyData} = payload  // name = non primitive data
   
   const modifiedUpdatedData: Record<string, unknown> = {
     ...remainingFacultyData
@@ -58,7 +70,7 @@ const deleteFacultyFromDB = async(id: string)=> {
   const session = await mongoose.startSession()
   try {
     session.startTransaction()
-    const deleteFaculty = await Faculty.findByIdAndUpdate(
+    const deleteFaculty = await Faculty.findByIdAndUpdate( // When id search we get all information this id. 
       id,
       {isDeleted: true},
       {new: true, session}
@@ -68,9 +80,9 @@ const deleteFacultyFromDB = async(id: string)=> {
       throw new Error("Failed to delete faculty!")
     }
     // get user _id from deleteFaculty
-    const userId = deleteFaculty.user
-    const deleteUser = await User.findByIdAndUpdate(
-      userId,
+    const userId = deleteFaculty.user   // This is (user Object ID) from get Faculty.
+    const deleteUser = await User.findByIdAndUpdate(  
+      userId, // user: new ObjectId('6661c0e378ca3cafa4bf11bd'),
       {isDeleted: true},
       {new: true, session}
     )
@@ -91,5 +103,5 @@ export const FacultyServices = {
   getAllFacultiesFromDB,
   getSingleFacultyFromDB,
   updateFacultyIntoDB,
-  deleteFacultyFromDB,
+  deleteFacultyFromDB
 }
