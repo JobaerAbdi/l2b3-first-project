@@ -8,6 +8,7 @@ import notFound from './app/middlewares/notFound'
 import { AcademicFacultyRoutes } from './app/modules/academicFaculty/academicFaculty.route'
 import { AcademicDepartmentRoutes } from './app/modules/academicDepartment/academicDepartment.route'
 import { FacultyRoutes } from './app/modules/faculty/faculty.route'
+import { AdminRoutes } from './app/modules/admin/admin.route'
 // import router from './app/routes'
 const app: Application = express()
 
@@ -21,12 +22,13 @@ app.use(cors())
 // Application routes
 app.use('/api/v1/users', UserRoutes)
 
-app.use('/api/v1/students', StudentRoutes)
-app.use('/api/v1/faculties', FacultyRoutes)
-
 app.use('/api/v1/academicSemester', AcademicSemesterRoutes)
 app.use('/api/v1/academicFaculty', AcademicFacultyRoutes)
 app.use('/api/v1/academicDepartment', AcademicDepartmentRoutes)
+app.use('/api/v1/students', StudentRoutes)
+app.use('/api/v1/faculties', FacultyRoutes)
+app.use('/api/v1/admins', AdminRoutes )
+
 
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
