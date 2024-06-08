@@ -169,12 +169,13 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
 
-  console.log(modifiedUpdatedData)
+  // console.log(modifiedUpdatedData)
 
-  const result = await Student.findOneAndUpdate({ id }, modifiedUpdatedData, {
-    new: true,
-    runValidators: true,
-  })
+  const result = await Student.findByIdAndUpdate(
+    id, 
+    modifiedUpdatedData,
+    {new: true, runValidators: true}
+  )
   return result
 }
 
@@ -184,18 +185,18 @@ const deleteStudentIntoDB = async (id: string) => {
   const session = await mongoose.startSession()
   try {
     session.startTransaction()
-    const deletedStudent = await Student.findOneAndUpdate(
+    const deletedStudent = await Student.findByIdAndUpdate(
       // => findOneAndUpdate use because this is custom made generate id.
-      { id },
+      id,
       { isDeleted: true },
       { new: true, session },
     )
     if (!deletedStudent) {
       throw new Error('Failed to deleted student!')
     }
-    const deletedUser = await User.findOneAndUpdate(
+    const deletedUser = await User.findByIdAndUpdate(
       // => findOneAndUpdate use because this is custom made generate id.
-      { id },
+       id,
       { isDeleted: true },
       { new: true, session },
     )
@@ -245,7 +246,6 @@ const deleteStudentIntoDB = async (id: string) => {
 // ========================================================================
 
 export const StudentServices = {
-  // createStudentIntoDB,
   getAllStudentsFromDB,
   getSingleStudentFromDB,
   updateStudentIntoDB,

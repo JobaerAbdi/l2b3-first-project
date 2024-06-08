@@ -24,6 +24,7 @@ import { StudentServices } from './student.service'
 //     })
 //   }
 // }
+// ====================================================================================
 
 const getAllStudents = async (
   req: Request,
@@ -32,7 +33,7 @@ const getAllStudents = async (
 ) => {
   try {
     const query = req.query
-    console.log("Controller query=>", query);
+    // console.log("Controller query=>", query);
     const result = await StudentServices.getAllStudentsFromDB(query)
     res.status(200).json({
       success: true,
@@ -44,14 +45,16 @@ const getAllStudents = async (
   }
 }
 
+// ====================================================================================
+
 const getSingleStudent = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { studentId } = req.params
-    const result = await StudentServices.getSingleStudentFromDB(studentId)
+    const { id } = req.params
+    const result = await StudentServices.getSingleStudentFromDB(id)
     res.status(200).json({
       success: true,
       message: 'Student is retrieved successfully',
@@ -62,15 +65,17 @@ const getSingleStudent = async (
   }
 }
 
+// ====================================================================================
+
 const updateStudent = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { studentId } = req.params
+    const { id } = req.params
     const { studentData } = req.body
-    const result = await StudentServices.updateStudentIntoDB(studentId, studentData)
+    const result = await StudentServices.updateStudentIntoDB(id, studentData)
     res.status(200).json({
       success: true,
       message: 'Student is updated successfully',
@@ -81,10 +86,12 @@ const updateStudent = async (
   }
 }
 
+// ====================================================================================
+
 const deleteStudent = async (req: Request, res: Response, next:NextFunction) => {
   try {
-    const { studentId } = req.params
-    const result = await StudentServices.deleteStudentIntoDB(studentId)
+    const { id } = req.params
+    const result = await StudentServices.deleteStudentIntoDB(id)
     res.status(200).json({
       success: true,
       message: 'Student and user is deleted successfully',
@@ -94,6 +101,8 @@ const deleteStudent = async (req: Request, res: Response, next:NextFunction) => 
     next(err)
   }
 }
+
+// ====================================================================================
 
 export const StudentControllers = {
   // createStudentIntoDB,
