@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
 import QueryBuilder from '../../builder/QueryBuilder'
 import { CourseSearchableFields } from './course.constant'
-import { TCourse } from './course.interface'
-import { Course } from './course.model'
+import { TCourse, TCourseFaculty } from './course.interface'
+import { Course, CourseFaculty } from './course.model'
 
 //=========================================================================================
 
@@ -13,36 +13,38 @@ const createCourseIntoDB = async (payload: TCourse) => {
 
 //=========================================================================================
 
-const getAllCourseFromDB = async(query: Record<string, unknown>)=>{
-    const courseQuery = new QueryBuilder(
-        Course.find().populate("preRequisiteCourses.course"),
-        query
-    )
+const getAllCourseFromDB = async (query: Record<string, unknown>) => {
+  const courseQuery = new QueryBuilder(
+    Course.find().populate('preRequisiteCourses.course'),
+    query,
+  )
     .search(CourseSearchableFields)
     .filter()
     .sort()
     .paginate()
     .fields()
-    const result = await courseQuery.modelQuery
-    return result
+  const result = await courseQuery.modelQuery
+  return result
 }
 
 //=========================================================================================
 
 const getSingleCourseFromDB = async (id: string) => {
-  const result = await Course.findById(id).populate("preRequisiteCourses.course")
+  const result = await Course.findById(id).populate(
+    'preRequisiteCourses.course',
+  )
   return result
 }
 
 //=========================================================================================
 
 const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
-  const { preRequisiteCourses, ...courseRemainingData } = payload;
+  const { preRequisiteCourses, ...courseRemainingData } = payload
 
-  const session = await mongoose.startSession();
+  const session = await mongoose.startSession()
 
   try {
-    session.startTransaction();
+    session.startTransaction()
     //step1: basic course info update
     const updatedBasicCourseInfo = await Course.findByIdAndUpdate(
       id,
@@ -52,10 +54,10 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
         runValidators: true,
         session,
       },
-    );
+    )
 
     if (!updatedBasicCourseInfo) {
-      throw new Error('Failed to update course!');
+      throw new Error('Failed to update course!')
     }
 
     // check if there is any pre requisite courses to update
@@ -63,7 +65,7 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
       // filter out the deleted fields
       const deletedPreRequisites = preRequisiteCourses
         .filter((el) => el.course && el.isDeleted)
-        .map((el) => el.course);
+        .map((el) => el.course)
 
       const deletedPreRequisiteCourses = await Course.findByIdAndUpdate(
         id,
@@ -77,16 +79,16 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
           runValidators: true,
           session,
         },
-      );
+      )
 
       if (!deletedPreRequisiteCourses) {
-        throw new Error('Failed to update course!');
+        throw new Error('Failed to update course!')
       }
 
       // filter out the new course fields
       const newPreRequisites = preRequisiteCourses?.filter(
         (el) => el.course && !el.isDeleted,
-      );
+      )
 
       const newPreRequisiteCourses = await Course.findByIdAndUpdate(
         id,
@@ -98,28 +100,28 @@ const updateCourseIntoDB = async (id: string, payload: Partial<TCourse>) => {
           runValidators: true,
           session,
         },
-      );
+      )
 
       if (!newPreRequisiteCourses) {
-        throw new Error('Failed to update course!');
+        throw new Error('Failed to update course!')
       }
     }
 
-    await session.commitTransaction();
-    await session.endSession();
+    await session.commitTransaction()
+    await session.endSession()
 
     const result = await Course.findById(id).populate(
       'preRequisiteCourses.course',
-    );
+    )
 
-    return result;
+    return result
   } catch (err: any) {
-    await session.abortTransaction();
-    await session.endSession();
+    await session.abortTransaction()
+    await session.endSession()
     // throw new Error('Failed to update course');
-    throw new Error(err);
+    throw new Error(err)
   }
-};
+}
 
 //=========================================================================================
 
@@ -134,10 +136,35 @@ const deleteCourseFromDB = async (id: string) => {
 
 //=========================================================================================
 
+const assignFacultiesWithCourseIntoDB = async (
+  id: string,
+  payload: Partial<TCourseFaculty>,
+) => {
+  const result = await CourseFaculty.findByIdAndUpdate(
+    id,
+    {
+      $addToSet: {
+        faculties: {
+          $each: payload,
+        },
+      },
+    },
+    {
+      upsert: true,
+      new: true,
+      runValidators: true,
+    },
+  )
+  return result
+}
+
+//=========================================================================================
+
 export const courseServices = {
   createCourseIntoDB,
   getAllCourseFromDB,
   getSingleCourseFromDB,
   updateCourseIntoDB,
   deleteCourseFromDB,
+  assignFacultiesWithCourseIntoDB,
 }

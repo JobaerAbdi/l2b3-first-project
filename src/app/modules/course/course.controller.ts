@@ -72,10 +72,28 @@ const deleteCourse: RequestHandler = async (req, res, next) => {
   }
 }
 
+
+const assignFacultiesWithCourse: RequestHandler = async (req, res, next) => {
+  try {
+    const {courseId} = req.params
+    const {courseData} = req.body
+    const result = await courseServices.assignFacultiesWithCourseIntoDB(courseId, courseData)
+    res.status(200).json({
+      success: true,
+      message: 'Course Faculty is assigned successfully!',
+      data: result,
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+
 export const courseControllers = {
   createCourse,
   getAllCourse,
   getSingleCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  assignFacultiesWithCourse
 }
