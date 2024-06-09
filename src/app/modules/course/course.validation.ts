@@ -1,17 +1,25 @@
 import { z } from 'zod'
-const preRequisiteCoursesSchema = z.object({
-  course: z.string(),
-  isDeleted: z.boolean().default(false)
-})
+const preRequisiteCoursesValidationSchema = z.object({
+  course: z.string({
+    required_error: "Course Id is required",
+    invalid_type_error: "Course Id must be a string",
+  })
+}).optional()
 
 const createCourseValidationSchema = z.object({
   body: z.object({
     courseData: z.object({
-      title: z.string(),
-      prefix: z.string(),
+      title: z.string({
+        required_error: "Title is required",
+        invalid_type_error: "Title must be a string",
+      }),
+      prefix: z.string({
+        required_error: "Prefix is required",
+        invalid_type_error: "Prefix must be a string",
+      }),
       code: z.number(),
       credits: z.number(),
-      preRequisiteCourses: z.array(preRequisiteCoursesSchema),
+      preRequisiteCourses: z.array(preRequisiteCoursesValidationSchema).optional(),
     }),
   }),
 })
@@ -19,11 +27,17 @@ const createCourseValidationSchema = z.object({
 const updateCourseValidationSchema = z.object({
   body: z.object({
     courseData: z.object({
-      title: z.string().optional(),
-      prefix: z.string().optional(),
+      title: z.string({
+        required_error: "Title is required",
+        invalid_type_error: "Title must be a string",
+      }).optional(),
+      prefix: z.string({
+        required_error: "Prefix is required",
+        invalid_type_error: "Prefix must be a string",
+      }).optional(),
       code: z.number().optional(),
       credits: z.number().optional(),
-      preRequisiteCourses: z.array(preRequisiteCoursesSchema).optional(),
+      preRequisiteCourses: z.array(preRequisiteCoursesValidationSchema).optional(),
     }),
   }),
 })

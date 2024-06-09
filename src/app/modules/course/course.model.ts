@@ -1,36 +1,40 @@
-import { Schema, model } from "mongoose";
-import { TCourse, TPreRequisiteCourses } from "./course.interface";
+import { Schema, model } from 'mongoose'
+import { TCourse, TPreRequisiteCourses } from './course.interface'
 
 export const preRequisiteCoursesSchema = new Schema<TPreRequisiteCourses>({
-   course: {
+  course: {
     type: Schema.Types.ObjectId,
-    ref: "Course"
-   },
-   isDeleted: {
+    ref: 'Course',
+  },
+  isDeleted: {
     type: Boolean,
-    default: false
-   }
+    default: false,
+  },
 })
 
 export const courseSchema = new Schema<TCourse>({
-   title: {
+  title: {
     type: String,
     required: true,
-    unique: true
-   },
-   prefix: {
+    unique: true,
+  },
+  prefix: {
     type: String,
     required: true,
-   },
-   code: {
+  },
+  code: {
     type: Number,
     required: true,
-   },
-   credits: {
+  },
+  credits: {
     type: Number,
     required: true,
-   },
-   preRequisiteCourses: [preRequisiteCoursesSchema]
-});
+  },
+  preRequisiteCourses: [preRequisiteCoursesSchema],
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  }
+})
 
-export const Course = model<TCourse>("Course", courseSchema)
+export const Course = model<TCourse>('Course', courseSchema)

@@ -9,6 +9,7 @@ import { AcademicFacultyRoutes } from './app/modules/academicFaculty/academicFac
 import { AcademicDepartmentRoutes } from './app/modules/academicDepartment/academicDepartment.route'
 import { FacultyRoutes } from './app/modules/faculty/faculty.route'
 import { AdminRoutes } from './app/modules/admin/admin.route'
+import { CourseRoutes } from './app/modules/course/course.route'
 // import router from './app/routes'
 const app: Application = express()
 
@@ -28,6 +29,7 @@ app.use('/api/v1/academicDepartment', AcademicDepartmentRoutes)
 app.use('/api/v1/students', StudentRoutes)
 app.use('/api/v1/faculties', FacultyRoutes)
 app.use('/api/v1/admins', AdminRoutes )
+app.use('/api/v1/courses', CourseRoutes)
 
 
 app.get('/', (req: Request, res: Response) => {
