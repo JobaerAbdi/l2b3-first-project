@@ -15,8 +15,9 @@ export type TCourse = {
 }
 
 //----------------------------------------------------------------------------------------
-//                  courseFaculty
+//                  courseFaculty interface
 export type TCourseFaculty = {
   course: Types.ObjectId
   faculties: [Types.ObjectId]
 }
+
