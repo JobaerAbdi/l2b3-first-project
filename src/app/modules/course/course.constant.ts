@@ -14,5 +14,5 @@ export const CourseSearchableFields = ["title", "prefix", "code"]
 //   prefix: string
 //   code: number
 //   credits: number
-//   preRequisiteCourses: TPreRequisiteCourses[]
+//   preRequisiteCourses: [TPreRequisiteCourses]
 // }
