@@ -9,7 +9,7 @@ const semesterRegistrationSchema = new Schema<TSemesterRegistration>(
       required: true,
       unique: true,
       ref: 'AcademicSemester',
-    },
+    }, 
     status: {
       type: String,
       enum: SemesterRegistrationStatus,  // ['UPCOMING', 'ONGOING', 'ENDED']
