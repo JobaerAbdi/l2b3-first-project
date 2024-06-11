@@ -20,21 +20,20 @@ const createSemesterRegistrationIntoDB = async (
    */
 
   const academicSemester = payload?.academicSemester;
-  console.log(academicSemester);
   
   //-------------------------------------------------------------------------------------------------------
 
   //check if there any registered semester that is already 'UPCOMING'|'ONGOING'
-  const isThereAnyUpcomingOrOngoingSEmester =
+  const isThereAnyUpcomingOrOngoingSemester =
     await SemesterRegistration.findOne({
       $or: [
         { status: RegistrationStatus.UPCOMING },
         { status: RegistrationStatus.ONGOING },
       ],
     });
-
-  if (isThereAnyUpcomingOrOngoingSEmester) {
-    throw new Error(`There is already an ${isThereAnyUpcomingOrOngoingSEmester.status} registered semester !`);
+ console.log(isThereAnyUpcomingOrOngoingSemester);
+  if (isThereAnyUpcomingOrOngoingSemester) {
+    throw new Error(`There is already an ${isThereAnyUpcomingOrOngoingSemester.status} registered semester !`);
   }
 
   //-------------------------------------------------------------------------------------------------------
@@ -110,21 +109,29 @@ const updateSemesterRegistrationIntoDB = async (
 
   // check if the requested registered semester is exists
   // check if the semester is already registered!
+
+  //-------------------------------------------------------------------------------------------------------
+
   const isSemesterRegistrationExists = await SemesterRegistration.findById(id);
 
   if (!isSemesterRegistrationExists) {
     throw new Error('This semester is not found !');
   }
 
-  //if the requested semester registration is ended , we will not update anything
-  const currentSemesterStatus = isSemesterRegistrationExists?.status;
-  const requestedStatus = payload?.status;
+  //-------------------------------------------------------------------------------------------------------
 
+  // if the requested semester registration is ended , we will not update anything
+  const currentSemesterStatus = isSemesterRegistrationExists?.status; // Suppose => ENDED
+  
   if (currentSemesterStatus === RegistrationStatus.ENDED) {
-    throw new Error(`This semester is already ${currentSemesterStatus}`);
+    throw new Error(`This semester is already ${currentSemesterStatus}`);  // ENDED
   }
+  
+  //-------------------------------------------------------------------------------------------------------
 
+    
   // UPCOMING --> ONGOING --> ENDED
+  const requestedStatus = payload?.status;
   if (
     currentSemesterStatus === RegistrationStatus.UPCOMING &&
     requestedStatus === RegistrationStatus.ENDED
@@ -138,6 +145,8 @@ const updateSemesterRegistrationIntoDB = async (
   ) {
     throw new Error(`You can not directly change status from ${currentSemesterStatus} to ${requestedStatus}`);
   }
+  
+  //-------------------------------------------------------------------------------------------------------
 
   const result = await SemesterRegistration.findByIdAndUpdate(id, payload, {
     new: true,

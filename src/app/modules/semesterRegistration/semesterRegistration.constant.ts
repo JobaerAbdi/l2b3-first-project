@@ -5,3 +5,12 @@ export const RegistrationStatus = {
   ONGOING: 'ONGOING',
   ENDED: 'ENDED',
 } as const;
+
+
+// export const countryName = {
+//   bangladesh: "bangladesh",
+//   nepal: "nepal",
+//   india: "india"
+// } as const
+
+// countryName.bangladesh = "japan"
