@@ -71,7 +71,7 @@ const updateSemesterRegistration: RequestHandler = async (req, res, next) => {
 }
 
 // =========================================================================================
-/*
+
 const deleteSemesterRegistration: RequestHandler = async (req, res, next) => {
   try {
     const {id} = req.params
@@ -86,7 +86,7 @@ const deleteSemesterRegistration: RequestHandler = async (req, res, next) => {
     next(err)
   }
 }
-*/
+
 
 // =========================================================================================
 
@@ -95,5 +95,5 @@ export const SemesterRegistrationController = {
   getAllSemesterRegistrations,
   getSingleSemesterRegistration,
   updateSemesterRegistration,
-  // deleteSemesterRegistration,
+  deleteSemesterRegistration,
 }

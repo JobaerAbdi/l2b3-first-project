@@ -51,41 +51,45 @@ const getSingleOfferedCourses: RequestHandler = async (req, res, next) => {
 
 
 //=====================================================================================================
-/*
-const updateOfferedCourse = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params
 
-  const result = await OfferedCourseServices.updateOfferedCourseIntoDB(
-    id,
-    req.body,
-  )
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'OfferedCourse updated successfully',
-    data: result,
-  })
-})
+const updateOfferedCourse: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const offeredCourseData = req.body
+    const result = await OfferedCourseServices.updateOfferedCourseIntoDB(id, offeredCourseData)
+    res.status(200).json({
+      success: true,
+      message: 'OfferedCourse updated successfully!',
+      data: result,
+    })
+  } catch (err) {
+    next(err)
+  }
+}
 
 //=====================================================================================================
 
-const deleteOfferedCourseFromDB = catchAsync(
-  async (req: Request, res: Response) => {
+
+const deleteOfferedCourseFromDB: RequestHandler = async (req, res, next) => {
+  try {
     const { id } = req.params
-    const result = await OfferedCourseServices.de(id)
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
+    const result = await OfferedCourseServices.deleteOfferedCourseFromDB(id)
+    res.status(200).json({
       success: true,
-      message: 'OfferedCourse deleted successfully',
+      message: 'OfferedCourse deleted successfully!',
       data: result,
     })
-  },
-)
-*/
+  } catch (err) {
+    next(err)
+  }
+}
+
+//=====================================================================================================
+
 export const OfferedCourseControllers = {
   createOfferedCourse,
   getAllOfferedCourses,
   getSingleOfferedCourses,
-  // updateOfferedCourse,
-  // deleteOfferedCourseFromDB,
+  updateOfferedCourse,
+  deleteOfferedCourseFromDB,
 }
