@@ -12,6 +12,7 @@ import { AdminRoutes } from './app/modules/admin/admin.route'
 import { CourseRoutes } from './app/modules/course/course.route'
 import { semesterRegistrationRoutes } from './app/modules/semesterRegistration/semesterRegistration.route'
 import { offeredCourseRoutes } from './app/modules/offeredCourse/offeredCourse.route'
+import { AuthRoutes } from './app/modules/auth/auth.route'
 // import router from './app/routes'
 const app: Application = express()
 
@@ -34,6 +35,7 @@ app.use('/api/v1/admins', AdminRoutes )
 app.use('/api/v1/courses', CourseRoutes)
 app.use('/api/v1/semesterRegistrations', semesterRegistrationRoutes)
 app.use('/api/v1/offeredCourse', offeredCourseRoutes)
+app.use('/api/v1/auth', AuthRoutes)
 
 
 app.get('/', (req: Request, res: Response) => {
