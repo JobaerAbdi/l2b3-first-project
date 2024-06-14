@@ -2,10 +2,15 @@ import express from "express";
 import { StudentControllers } from "./student.controller";
 import validationRequest from "../../middlewares/validateRequest";
 import { studentValidationSchemas } from "./student.validation";
+import auth from "../../middlewares/auth";
+import { USER_ROLE } from "../user/user.constant";
 const router = express.Router();  // router  is a object
 
 
-router.get('/', StudentControllers.getAllStudents)
+router.get('/', 
+    auth(USER_ROLE.admin, USER_ROLE.admin),
+    StudentControllers.getAllStudents
+)
 
 router.get('/:id', StudentControllers.getSingleStudent)
 

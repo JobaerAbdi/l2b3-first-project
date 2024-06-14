@@ -17,23 +17,38 @@ import config from '../../config'
 // ====================================================================================
 
 const loginUser = async (payload: TLoginUser) => {
-  // console.log(payload); // { id: '2030010001', password: 'student123' }
+  // console.log("Admin payload =>", payload);   // { id: 'A-0001', password: 'admin123' }
+  // (payload?.id = 'A-0001')
+  // (payload?.password = 'admin123')
+
+  // console.log("Faculty payload =>", payload); // { id: '', password: '' }
+  // (payload?.id = '')
+  // (payload?.password = '')
+
+  // console.log("Student payload =>", payload); // { id: '2030010001', password: 'student123' }
+  // (payload?.id = '2030010001')
+  // (payload?.password = 'student123')
+
+ 
+
+  //...........................................................................................
+
+  // => Check this (admin/faculty/student) user exists in users collection database by payload?.id
   const isUserExists = await User.findOne({
     id: payload?.id,
   })
-
-  // console.log(isUserExists);
+  //console.log(isUserExists);
   /*
 {
-  _id: new ObjectId('666a866063d248ee80afbbb0'),
-  id: '2030020001',
-  password: '$2b$12$EUSM.GsvfhwBBfIe7AzZlOPqcSETFGnIagQ.Zg3U8BkRTtfbQ4/gG',
+  _id: new ObjectId('666bd5e7079052438a8de329'),
+  id: 'A-0001',
+  password: '$2b$12$PgFgHBeKQ5x6VKjtL7Dq1edZ4nuoMwAYOdDbrCOVvEXXVOX7Hjw.q',
   needsPasswordChange: true,
-  role: 'student',
+  role: 'admin',
   status: 'in-progress',
   isDeleted: false,
-  createdAt: 2024-06-13T05:40:48.851Z,
-  updatedAt: 2024-06-13T05:40:48.851Z,
+  createdAt: 2024-06-14T05:32:23.721Z,
+  updatedAt: 2024-06-14T05:32:23.721Z,
   __v: 0
 }
   */
@@ -42,18 +57,28 @@ const loginUser = async (payload: TLoginUser) => {
     throw new Error('This user is not found!')
   }
 
-  const isDeleted = isUserExists?.isDeleted //=> false
+  //...........................................................................................
+  
+  // (isUserExists?.isDeleted = false)
+  const isDeleted = isUserExists?.isDeleted
   // console.log(isDeleted); //=> false
   if (isDeleted) {
     throw new Error('This user is deleted!')
   }
 
-  const userStatus = isUserExists?.status //=> in-progress
+  //...........................................................................................
+
+  // (isUserExists?.status = in-progress)
+  const userStatus = isUserExists?.status 
   // console.log(userStatus); //=> in-progress
   if (userStatus === 'blocked') {
     throw new Error('This user is blocked!')
   }
 
+  //...........................................................................................
+  
+  // Plane pass => (payload?.password = 'admin123')
+  // Hash pass  => (isUserExists?.password = '$2b$12$PgFgHBeKQ5x6VKjtL7Dq1edZ4nuoMwAYOdDbrCOVvEXXVOX7Hjw.q')
   const isPasswordMatched = await bcrypt.compare(
     payload?.password,
     isUserExists?.password,
@@ -62,19 +87,28 @@ const loginUser = async (payload: TLoginUser) => {
     throw new Error('Password does not matched!')
   }
 
+  //...........................................................................................
+  
+  // (isUserExists?.id = 'A-0001')
+  // (isUserExists?.role = 'admin')
   const jwtPayload = {
-    userId: isUserExists?.id,
+    userId: isUserExists?.id, 
     role: isUserExists?.role,
   }
 
   // create token and send to the client
-  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
-    expiresIn: '10d',
-  })
+  const accessToken = jwt.sign(
+    jwtPayload, 
+    config.jwt_access_secret as string,
+    {expiresIn: '10d'}
+  )
 
+  //...........................................................................................
+
+  // (isUserExists?.needsPasswordChange = true)
   return {
     accessToken,
-    needsPasswordChange: isUserExists?.needsPasswordChange,
+    needsPasswordChange: isUserExists?.needsPasswordChange // => true
   }
 }
 
@@ -205,7 +239,7 @@ const changePassword = async (
 }
   */
 
- payload: { oldPassword: string; newPassword: string },
+  payload: { oldPassword: string; newPassword: string },
   // payload=>
   // { oldPassword: 'student123', newPassword: 'student1234' }
 ) => {
@@ -251,7 +285,7 @@ __v: 0
     payload?.oldPassword,
     isUserExists?.password,
   )
-  
+
   if (!isPasswordMatched) {
     throw new Error('Password does not matched!')
   }
@@ -270,7 +304,7 @@ __v: 0
     {
       password: newHashedPassword,
       needsPasswordChange: false,
-      passwordChangedAt: new Date()
+      passwordChangedAt: new Date(),
     },
   )
   return null

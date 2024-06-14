@@ -4,7 +4,7 @@ import { FacultyServices } from './faculty.service'
 
 const getAllFaculties: RequestHandler = async (req, res, next) => {
   try {
-    console.log("test=>", req.user);
+    // console.log("test from getAllFaculties controller =>", req.user);
     
     const query = req.query
     const result = await FacultyServices.getAllFacultiesFromDB(query)

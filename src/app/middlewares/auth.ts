@@ -11,13 +11,18 @@ import catchAsync from '../utils/catchAsync'
 import { NextFunction, Request, Response } from 'express'
 import config from '../config'
 import { TUserRole } from '../modules/user/user.interface'
+import { User } from '../modules/user/user.model'
 
 const auth = (...requiredRoles: TUserRole[]) => {
+  console.log('requiredRoles form auth middleware =>', requiredRoles)
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     //............................................................................................
 
     const token = req.headers.authorization
-    console.log("req.headers.authorization=>", token);
+    console.log(
+      'admin token inject into get all faculties route, req.headers.authorization =>',
+      token,
+    )
 
     // checking if the token is missing
     if (!token) {
@@ -25,26 +30,72 @@ const auth = (...requiredRoles: TUserRole[]) => {
     }
 
     //............................................................................................
-
     // checking if the given token is valid
     const decoded = jwt.verify(
       token,
       config.jwt_access_secret as string,
-      function (err, decoded) {
-        if (err) {
-          throw new Error('You are not authorized!')
-        }
-        //console.log(decoded) // =>{ userId: 'A-0001', role: 'admin', iat: 1718209499, exp: 1719073499 }
+    ) as JwtPayload
 
-        const role = (decoded as JwtPayload).role
-        if(requiredRoles && !requiredRoles.includes(role)){
-          throw new Error('You are not authorized hay!')
-        }
+    // console.log('decoded =>', decoded)
+    // [decoded = {userId: 'A-0001', role: 'admin', iat: 1718209499, exp: 1719073499}]
+    // (decoded.userId = 'A-0001')
+    // (decoded.role = 'admin')
 
-        req.user = decoded as JwtPayload
-        next()
-      },
-    )
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    const { userId, role, iat, exp } = decoded
+    const isUserExists = await User.findOne({
+      id: userId,
+    })
+    //console.log(isUserExists);
+    /*
+{
+  _id: new ObjectId('666bd5e7079052438a8de329'),
+  id: 'A-0001',
+  password: '$2b$12$PgFgHBeKQ5x6VKjtL7Dq1edZ4nuoMwAYOdDbrCOVvEXXVOX7Hjw.q',
+  needsPasswordChange: true,
+  role: 'admin',
+  status: 'in-progress',
+  isDeleted: false,
+  createdAt: 2024-06-14T05:32:23.721Z,
+  updatedAt: 2024-06-14T05:32:23.721Z,
+  __v: 0
+}
+  */
+
+    if (!isUserExists) {
+      throw new Error('This user is not found!')
+    }
+
+    //...........................................................................................
+
+    // (isUserExists?.isDeleted = false)
+    const isDeleted = isUserExists?.isDeleted
+    // console.log(isDeleted); //=> false
+    if (isDeleted) {
+      throw new Error('This user is deleted!')
+    }
+
+    //...........................................................................................
+
+    // (isUserExists?.status = in-progress)
+    const userStatus = isUserExists?.status
+    // console.log(userStatus); //=> in-progress
+    if (userStatus === 'blocked') {
+      throw new Error('This user is blocked!')
+    }
+
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+
+    if (requiredRoles && !requiredRoles.includes(role)) {
+      throw new Error('You are not authorized hay!')
+    }
+    req.user = decoded as JwtPayload
+    next()
+    // checking if the given token is valid
 
     //............................................................................................
   })

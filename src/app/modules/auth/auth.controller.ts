@@ -8,12 +8,28 @@ import { AuthServices } from './auth.service';
 
 import { RequestHandler } from "express";
 import { AuthServices } from "./auth.service";
+import { date } from "zod";
 
 // ====================================================================================
 const loginUser: RequestHandler = async(req, res, next)=>{
  try {
   const logData = req.body
+  // console.log("Admin controller =>", logData);   // { id: 'A-0001', password: 'admin123' }
+
+  // console.log("Faculty controller =>", logData); // { id: '', password: '' }
+
+  // console.log("Student controller =>", logData); // { id: '2030010001', password: 'student123' }
+
+
   const result = await AuthServices.loginUser(logData)
+  // console.log("create token and send to the client =>", result); =>
+  /*
+  {
+  accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBLTAwMDEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MTgzNDU4MDEsImV4cCI6MTcxOTIwOTgwMX0.NgcwlJ-KtD1-WWOMM5RZsSHdL2XFpXcYSTr0xF4og1M',
+  needsPasswordChange: true
+  }
+  */
+
   res.status(200).json({
     success: true,
     message: "User is logged in successfully!",

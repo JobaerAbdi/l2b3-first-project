@@ -19,7 +19,7 @@ router.post(
   '/login',
   validationRequest(AuthValidation.loginValidationSchema),
   AuthControllers.loginUser,
-);
+); // (admin login + faculty login + student login)
 
 router.post(
   '/change-password',
