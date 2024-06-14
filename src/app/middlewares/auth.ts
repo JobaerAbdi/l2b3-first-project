@@ -90,6 +90,18 @@ const auth = (...requiredRoles: TUserRole[]) => {
     //-------------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------------
 
+    if (
+      isUserExists.passwordChangedAt &&
+      User.isJWTIssuedBeforePasswordChanged(
+        isUserExists.passwordChangedAt,
+        iat as number,
+      )
+    ) {
+      throw new Error('You are not authorized !');
+    }
+
+
+
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new Error('You are not authorized hay!')
     }
