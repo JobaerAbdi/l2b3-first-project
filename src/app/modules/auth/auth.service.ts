@@ -1,4 +1,4 @@
-import { string } from 'zod';
+import { string } from 'zod'
 /*
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
@@ -8,18 +8,18 @@ import { User } from '../user/user.model';
 import { TLoginUser } from './auth.interface';
 import { createToken } from './auth.utils';
 */
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import { User } from "../user/user.model";
-import { TLoginUser } from "./auth.interface";
-import config from '../../config';
+import jwt, { JwtPayload } from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
+import { User } from '../user/user.model'
+import { TLoginUser } from './auth.interface'
+import config from '../../config'
 
 // ====================================================================================
 
 const loginUser = async (payload: TLoginUser) => {
   // console.log(payload); // { id: '2030010001', password: 'student123' }
   const isUserExists = await User.findOne({
-    id: payload?.id
+    id: payload?.id,
   })
 
   // console.log(isUserExists);
@@ -38,43 +38,43 @@ const loginUser = async (payload: TLoginUser) => {
 }
   */
 
-  if(!isUserExists){
-    throw new Error("This user is not found!")
+  if (!isUserExists) {
+    throw new Error('This user is not found!')
   }
 
- const isDeleted = isUserExists?.isDeleted //=> false
- // console.log(isDeleted); //=> false
- if(isDeleted){
-  throw new Error("This user is deleted!")
- }
+  const isDeleted = isUserExists?.isDeleted //=> false
+  // console.log(isDeleted); //=> false
+  if (isDeleted) {
+    throw new Error('This user is deleted!')
+  }
 
- const userStatus = isUserExists?.status //=> in-progress
- // console.log(userStatus); //=> in-progress
- if(userStatus === "blocked"){
-  throw new Error("This user is blocked!")
- }
+  const userStatus = isUserExists?.status //=> in-progress
+  // console.log(userStatus); //=> in-progress
+  if (userStatus === 'blocked') {
+    throw new Error('This user is blocked!')
+  }
 
-const isPasswordMatched = await bcrypt.compare(payload?.password, isUserExists?.password) 
-if(!isPasswordMatched){
-  throw new Error("Password does not matched!")
-}
+  const isPasswordMatched = await bcrypt.compare(
+    payload?.password,
+    isUserExists?.password,
+  )
+  if (!isPasswordMatched) {
+    throw new Error('Password does not matched!')
+  }
 
-const jwtPayload = {
-  userId: isUserExists?.id,
-  role: isUserExists?.role
-}
+  const jwtPayload = {
+    userId: isUserExists?.id,
+    role: isUserExists?.role,
+  }
 
-
-// create token and send to the client
-const accessToken = jwt.sign(
-  jwtPayload,
-  config.jwt_access_secret as string,
-   { expiresIn: '10d' }
-  );
+  // create token and send to the client
+  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+    expiresIn: '10d',
+  })
 
   return {
     accessToken,
-    needsPasswordChange: isUserExists?.needsPasswordChange
+    needsPasswordChange: isUserExists?.needsPasswordChange,
   }
 }
 
@@ -193,11 +193,87 @@ const changePassword = async (
 
 // ====================================================================================
 
-const changePassword = async(user: {userId: string, role: string}, payload)=>{
-  const result = await User.findOneAndUpdate({
+const changePassword = async (
+  user: JwtPayload,
+  // user=>
+  /*
+{
+  userId: '2030020001',
+  role: 'student',
+  iat: 1718290422,
+  exp: 1719154422
+}
+  */
+
+ payload: { oldPassword: string; newPassword: string },
+  // payload=>
+  // { oldPassword: 'student123', newPassword: 'student1234' }
+) => {
+  const isUserExists = await User.findOne({
     id: user?.userId,
-    role: user?.role
   })
+
+  console.log('From changePassword=>', isUserExists)
+
+  // console.log(isUserExists);
+  /*
+{
+_id: new ObjectId('666a866063d248ee80afbbb0'),
+id: '2030020001',
+password: '$2b$12$EUSM.GsvfhwBBfIe7AzZlOPqcSETFGnIagQ.Zg3U8BkRTtfbQ4/gG',
+needsPasswordChange: true,
+role: 'student',
+status: 'in-progress',
+isDeleted: false,
+createdAt: 2024-06-13T05:40:48.851Z,
+updatedAt: 2024-06-13T05:40:48.851Z,
+__v: 0
+}
+*/
+
+  if (!isUserExists) {
+    throw new Error('This user is not found!')
+  }
+
+  const isDeleted = isUserExists?.isDeleted //=> false
+  // console.log(isDeleted); //=> false
+  if (isDeleted) {
+    throw new Error('This user is deleted!')
+  }
+
+  const userStatus = isUserExists?.status //=> in-progress
+  // console.log(userStatus); //=> in-progress
+  if (userStatus === 'blocked') {
+    throw new Error('This user is blocked!')
+  }
+
+  const isPasswordMatched = await bcrypt.compare(
+    payload?.oldPassword,
+    isUserExists?.password,
+  )
+  
+  if (!isPasswordMatched) {
+    throw new Error('Password does not matched!')
+  }
+
+  // hash new password
+  const newHashedPassword = await bcrypt.hash(
+    payload?.newPassword,
+    Number(config.bcrypt_salt_rounds),
+  )
+
+  await User.findOneAndUpdate(
+    {
+      id: user?.userId,
+      role: user?.role,
+    },
+    {
+      password: newHashedPassword,
+      needsPasswordChange: false,
+      passwordChangedAt: new Date()
+    },
+  )
+  return null
 }
 
 //..........................................................................
@@ -261,4 +337,4 @@ export const AuthServices = {
   loginUser,
   changePassword,
   // refreshToken,
-};
+}

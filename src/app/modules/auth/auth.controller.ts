@@ -60,13 +60,12 @@ const changePassword: RequestHandler = async(req, res, next)=>{
     // console.log(req.body);
     // { oldPassword: 'student123', newPassword: 'student1234' }
 
-    const user = req.user
     const {...passwordData} = req.body
-    const result = await AuthServices.changePassword(user, passwordData)
+    const result = await AuthServices.changePassword(req.user, passwordData)
     res.status(200).json({
       success: true,
-      message: "User is logged in successfully!",
-      data: null
+      message: "Password is update successfully!",
+      data: result
     })
    } catch (err) {
      next(err)
