@@ -13,12 +13,14 @@ import { CourseRoutes } from './app/modules/course/course.route'
 import { semesterRegistrationRoutes } from './app/modules/semesterRegistration/semesterRegistration.route'
 import { offeredCourseRoutes } from './app/modules/offeredCourse/offeredCourse.route'
 import { AuthRoutes } from './app/modules/auth/auth.route'
+import cookieParser from 'cookie-parser'
 // import router from './app/routes'
 const app: Application = express()
 
 // parsers
 app.use(express.json())
 app.use(cors())
+app.use(cookieParser())
 
 // routes => index.ts
 //app.use('/api/v1', router);

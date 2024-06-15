@@ -9,6 +9,7 @@ import { AuthServices } from './auth.service';
 import { RequestHandler } from "express";
 import { AuthServices } from "./auth.service";
 import { date } from "zod";
+import config from "../../config";
 
 // ====================================================================================
 const loginUser: RequestHandler = async(req, res, next)=>{
@@ -22,6 +23,7 @@ const loginUser: RequestHandler = async(req, res, next)=>{
 
 
   const result = await AuthServices.loginUser(logData)
+  const {accessToken, refreshToken, needsPasswordChange} = result
   // console.log("create token and send to the client =>", result); =>
   /*
   {
@@ -30,10 +32,19 @@ const loginUser: RequestHandler = async(req, res, next)=>{
   }
   */
 
+  res.cookie(
+    "refreshToken",
+     refreshToken,
+     {secure: config.node_env === "production", httpOnly: true}
+  )
+
   res.status(200).json({
     success: true,
     message: "User is logged in successfully!",
-    data: result
+    data: {
+      accessToken,
+      needsPasswordChange
+    }
   })
  } catch (err) {
    next(err)
@@ -98,7 +109,7 @@ const changePassword = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Password is updated succesfully!',
+    message: 'Password is updated successfully!',
     data: result,
   });
 });
@@ -114,11 +125,28 @@ const refreshToken = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Access token is retrieved succesfully!',
+    message: 'Access token is retrieved successfully!',
     data: result,
   });
 });
-*/
+*/ 
+
+
+//.................................................................
+const refreshToken: RequestHandler = async(req, res, next)=>{
+  try {
+    const { refreshToken } = req.cookies;
+    const result = await AuthServices.refreshToken(refreshToken);
+    res.status(200).json({
+      success: true,
+      message: "Access token is retrieved successfully!",
+      data: result
+    })
+   } catch (err) {
+     next(err)
+   }
+}
+
 
 // ====================================================================================
 
@@ -126,5 +154,5 @@ const refreshToken = catchAsync(async (req, res) => {
 export const AuthControllers = {
   loginUser,
   changePassword,
-  // refreshToken,
+  refreshToken,
 };

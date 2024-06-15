@@ -13,6 +13,7 @@ import bcrypt from 'bcrypt'
 import { User } from '../user/user.model'
 import { TLoginUser } from './auth.interface'
 import config from '../../config'
+import { createToken } from './auth.utils'
 
 // ====================================================================================
 
@@ -96,11 +97,32 @@ const loginUser = async (payload: TLoginUser) => {
     role: isUserExists?.role,
   }
 
-  // create token and send to the client
+ /*
   const accessToken = jwt.sign(
     jwtPayload, 
     config.jwt_access_secret as string,
     {expiresIn: '10d'}
+  )
+  
+
+  const refreshToken = jwt.sign(
+    jwtPayload, 
+    config.jwt_refresh_secret as string,
+    {expiresIn: '365d'}
+  )
+  */
+
+  const accessToken = createToken(
+    jwtPayload, 
+    config.jwt_access_secret as string, 
+    config.jwt_access_expire_in as string
+  )
+
+
+  const refreshToken = createToken(
+    jwtPayload, 
+    config.jwt_refresh_secret as string, 
+    config.jwt_refresh_expire_in as string
   )
 
   //...........................................................................................
@@ -108,6 +130,7 @@ const loginUser = async (payload: TLoginUser) => {
   // (isUserExists?.needsPasswordChange = true)
   return {
     accessToken,
+    refreshToken,
     needsPasswordChange: isUserExists?.needsPasswordChange // => true
   }
 }
@@ -310,8 +333,8 @@ __v: 0
   return null
 }
 
-//..........................................................................
-/*
+// ====================================================================================
+
 const refreshToken = async (token: string) => {
   // checking if the given token is valid
   const decoded = jwt.verify(
@@ -322,53 +345,55 @@ const refreshToken = async (token: string) => {
   const { userId, iat } = decoded;
 
   // checking if the user is exist
-  const user = await User.isUserExistsByCustomId(userId);
+  const isUserExists = await User.findOne({
+    id: userId,
+  })
 
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+  if (!isUserExists) {
+    throw new Error('This user is not found !');
   }
   // checking if the user is already deleted
-  const isDeleted = user?.isDeleted;
+  const isDeleted = isUserExists?.isDeleted;
 
   if (isDeleted) {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted !');
+    throw new Error('This user is deleted !');
   }
 
   // checking if the user is blocked
-  const userStatus = user?.status;
+  const userStatus = isUserExists?.status;
 
   if (userStatus === 'blocked') {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
+    throw new Error('This user is blocked ! !');
   }
 
   if (
-    user.passwordChangedAt &&
-    User.isJWTIssuedBeforePasswordChanged(user.passwordChangedAt, iat as number)
+    isUserExists?.passwordChangedAt &&
+    User.isJWTIssuedBeforePasswordChanged(isUserExists.passwordChangedAt, iat as number)
   ) {
-    throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
+    throw new Error('You are not authorized !');
   }
 
   const jwtPayload = {
-    userId: user.id,
-    role: user.role,
+    userId: isUserExists?.id,
+    role: isUserExists?.role,
   };
 
   const accessToken = createToken(
     jwtPayload,
     config.jwt_access_secret as string,
-    config.jwt_access_expires_in as string,
+    config.jwt_access_expire_in as string,
   );
 
   return {
     accessToken,
   };
 };
-*/
+
 
 // ====================================================================================
 
 export const AuthServices = {
   loginUser,
   changePassword,
-  // refreshToken,
+  refreshToken,
 }
